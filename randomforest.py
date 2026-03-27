@@ -37,12 +37,6 @@ for depth in depths:
 # get the best depth
 best_depth = depths[test_accuracy.index(max(test_accuracy))]
 
-# second time model train using the best depth.
-dtc = DecisionTreeClassifier(max_depth=best_depth, random_state=42)
-dtc.fit(x_train, y_train)
-y_pred = dtc.predict(x_test)
-print(classification_report(y_test, y_pred))
-
 # display the tree graph
 plt.figure(figsize=(12, 8))
 plot_tree(dtc, filled=True)
