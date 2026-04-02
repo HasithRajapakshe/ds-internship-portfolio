@@ -14,33 +14,35 @@ selected_columns = ['Transaction_Amount', 'Transaction_Type', 'Time_of_Transacti
                     'Fraudulent', 'Previous_Fraudulent_Transactions', 'Account_Age', 'Number_of_Transactions_Last_24H', 'Payment_Method']
 
 df = df[selected_columns]
-
+# select the numeric colums
 numeric_cols = ['Transaction_Amount', 'Time_of_Transaction',
                 'Previous_Fraudulent_Transactions', 'Account_Age',
                 'Number_of_Transactions_Last_24H']
 
+# fill the missing data using mean
 imputer = SimpleImputer(strategy='mean')
 df[numeric_cols] = imputer.fit_transform(df[numeric_cols])
 
+# encode the string
 encode_col = ["Transaction_Type", "Device_Used", "Location", "Payment_Method"]
-
 label = LabelEncoder()
-
 for col in encode_col:
     df[col] = label.fit_transform(df[col])
 
 print(df.head())
 
-
+# drop the fraudulentt
 x = df.drop(columns=["Fraudulent"])
 y = df["Fraudulent"]
 
+# get the class count
 print("Class counts:")
 print(df["Fraudulent"].value_counts())
 
 x_train, x_test, y_train, y_test = train_test_split(
     x, y, test_size=0.2, random_state=42)
 
+# generate the artificial features
 smote = SMOTE(random_state=42)
 x_resampled, y_resampled = smote.fit_resample(x_train, y_train)
 
@@ -50,7 +52,7 @@ print(y_resampled.value_counts())
 print("\nClass distribution (%):")
 print(y_resampled.value_counts(normalize=True) * 100)
 
-
+# use the classification model
 model = LogisticRegression()
 model.fit(x_resampled, y_resampled)
 
