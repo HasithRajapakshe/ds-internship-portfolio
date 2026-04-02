@@ -26,4 +26,4 @@ print(classification_report(y_test, model.predict(x_test)))
 explainer = shap.TreeExplainer(model)
 shap_values = explainer(x_test)
 
-shap.waterfall_plot(shap_values[0])
+shap.waterfall_plot(shap_values[1])
