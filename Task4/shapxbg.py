@@ -10,7 +10,8 @@ df = pd.read_csv(
     r"C:\Users\hasit\OneDrive\Desktop\ds_internship_portfolio\Wholesale-customers-data.csv")
 
 
-x = df.drop(columns=["Channel"])
+x = df[["Region", "Fresh", "Milk", "Grocery",
+       "Frozen", "Detergents_Paper", "Delicassen"]]
 y = df["Channel"]-1
 
 x_train, x_test, y_train, y_test = train_test_split(
@@ -26,4 +27,4 @@ print(classification_report(y_test, model.predict(x_test)))
 explainer = shap.TreeExplainer(model)
 shap_values = explainer(x_test)
 
-shap.waterfall_plot(shap_values[1])
+shap.waterfall_plot(shap_values[1])  # test data wala 2 rows

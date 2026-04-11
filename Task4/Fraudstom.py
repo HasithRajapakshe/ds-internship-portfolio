@@ -1,53 +1,39 @@
-import pandas as pd
+# Install if needed: pip install imbalanced-learn scikit-learn
+import numpy as np
+from sklearn.datasets import make_classification
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report
-from sklearn.preprocessing import LabelEncoder
-from sklearn.impute import SimpleImputer
-import joblib
+from imblearn.over_sampling import SMOTE
 
-df = pd.read_csv(
-    r"C:\Users\hasit\OneDrive\Desktop\ds_internship_portfolio\Fraud Detection Dataset.csv")
+# ── 1. Create imbalanced dataset (or replace with your own CSV) ──
+X, y = make_classification(
+    n_samples=1000,
+    n_features=10,
+    weights=[0.95, 0.05],   # 95% majority, 5% minority → imbalanced
+    random_state=42
+)
 
-selected_columns = ['Transaction_Amount', 'Transaction_Type', 'Time_of_Transaction', 'Device_Used', 'Location',
-                    'Fraudulent', 'Previous_Fraudulent_Transactions', 'Account_Age', 'Number_of_Transactions_Last_24H', 'Payment_Method']
+print("Before SMOTE:")
+print(f"  Class 0: {sum(y==0)}, Class 1: {sum(y==1)}")
 
-df = df[selected_columns]
+# ── 2. Split ──
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
 
+# ── 3. Apply SMOTE ──
+smote = SMOTE(random_state=42)
+X_resampled, y_resampled = smote.fit_resample(X_train, y_train)
 
-numeric_cols = ['Transaction_Amount', 'Time_of_Transaction',
-                'Previous_Fraudulent_Transactions', 'Account_Age',
-                'Number_of_Transactions_Last_24H']
+print("\nAfter SMOTE:")
+print(f"  Class 0: {sum(y_resampled==0)}, Class 1: {sum(y_resampled==1)}")
 
-imputer = SimpleImputer(strategy='mean')
-df[numeric_cols] = imputer.fit_transform(df[numeric_cols])
+# ── 4. Train model ──
+model = RandomForestClassifier(random_state=42)
+model.fit(X_resampled, y_resampled)
 
-encode_col = ["Transaction_Type", "Device_Used", "Location", "Payment_Method"]
-
-label = LabelEncoder()
-
-for col in encode_col:
-    df[col] = label.fit_transform(df[col])
-
-print(df.head())
-
-
-x = df.drop(columns=["Fraudulent"])
-y = df["Fraudulent"]
-
-print("Class counts:")
-print(df["Fraudulent"].value_counts())
-
-x_train, x_test, y_train, y_test = train_test_split(
-    x, y, test_size=0.2, random_state=42)
-
-
-model = LogisticRegression()
-model.fit(x_train, y_train)
-
-y_pred = model.predict(x_test)
-
-joblib.dump(model, 'logistic_regression_model3.pkl')
-
-
+# ── 5. Evaluate ──
+y_pred = model.predict(X_test)
+print("\nClassification Report:")
 print(classification_report(y_test, y_pred))

@@ -42,9 +42,16 @@ print(df["Fraudulent"].value_counts())
 x_train, x_test, y_train, y_test = train_test_split(
     x, y, test_size=0.2, random_state=42)
 
+print("Training set class counts:")
+print(y_train.value_counts())
+
+print("\nTesting set class counts:")
+print(y_test.value_counts())
+
 # generate the artificial features
 smote = SMOTE(random_state=42)
 x_resampled, y_resampled = smote.fit_resample(x_train, y_train)
+print()
 
 print("Class counts:")
 print(y_resampled.value_counts())
