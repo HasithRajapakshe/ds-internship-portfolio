@@ -1,5 +1,4 @@
-"""Train/test split and model training."""
-
+"""Train"""
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
@@ -7,17 +6,27 @@ from sklearn.ensemble import RandomForestClassifier
 import joblib
 
 
-def split_data(df):
+def run(df):
     x = df[['income', 'credit_score', 'loan_amount']]
     y = df['loan_approved'].astype(int)
 
     x_train, x_test, y_train, y_test = train_test_split(
         x, y, test_size=0.2, random_state=42)
 
-    return x_train, x_test, y_train, y_test
+    model1 = train_model1(x_train, y_train)
+    model2 = train_model2(x_train, y_train)
+    model3 = train_model3(x_train, y_train)
+
+    trained_models = {
+        'Logistic Regression': model1,
+        'Decision Tree': model2,
+        'Random Forest': model3,
+    }
+
+    return x_train, x_test, y_train, y_test, trained_models
 
 
-def train_model(x_train, y_train):
+def train_model1(x_train, y_train):
     model = LogisticRegression(max_iter=1000)
     model.fit(x_train, y_train)
     joblib.dump(model, 'model1.pkl')
